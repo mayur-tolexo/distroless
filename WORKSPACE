@@ -130,3 +130,156 @@ http_archive(
 load("@rules_rust//rust:repositories.bzl", "rust_repositories")
 
 rust_repositories()
+
+
+[
+    dpkg_src(
+        name = arch + "_" + name,
+        arch = arch,
+        distro = distro,
+        sha256 = SHA256s[arch][name]["main"],
+        snapshot = DEBIAN_SNAPSHOT,
+        url = "https://snapshot.debian.org/archive",
+    )
+    for arch in ARCHITECTURES
+    for (name, distro, tag) in VERSIONS
+]
+
+[
+    dpkg_src(
+        name = arch + "_" + name + "_updates",
+        arch = arch,
+        distro = distro + "-updates",
+        sha256 = SHA256s[arch][name]["updates"],
+        snapshot = DEBIAN_SNAPSHOT,
+        url = "https://snapshot.debian.org/archive",
+    )
+    for arch in ARCHITECTURES
+    for (name, distro, tag) in VERSIONS
+]
+
+# [
+#     dpkg_src(
+#         name = arch + "_" + name + "_security",
+#         package_prefix = "https://snapshot.debian.org/archive/debian-security/{}/".format(DEBIAN_SECURITY_SNAPSHOT),
+#         packages_url = "https://snapshot.debian.org/archive/debian-security/{}/dists/{}/updates/main/binary-{}/Packages.xz".format(DEBIAN_SECURITY_SNAPSHOT, distro, arch),
+#         sha256 = SHA256s[arch][name]["security"],
+#     )
+#     for arch in ARCHITECTURES
+#     for (name, distro, tag) in VERSIONS
+#     if "debian10" == name
+#     if "security" in SHA256s[arch][name]
+# ]
+
+# debian11 has a slightly different structure for security on snapshots
+[
+    dpkg_src(
+        name = arch + "_" + name + "_security",
+        package_prefix = "https://snapshot.debian.org/archive/debian-security/{}/".format(DEBIAN_SECURITY_SNAPSHOT),
+        packages_url = "https://snapshot.debian.org/archive/debian-security/{}/dists/{}-security/main/binary-{}/Packages.xz".format(DEBIAN_SECURITY_SNAPSHOT, distro, arch),
+        sha256 = SHA256s[arch][name]["security"],
+    )
+    for arch in ARCHITECTURES
+    for (name, distro, tag) in VERSIONS
+    if "debian11" == name
+    if "security" in SHA256s[arch][name]
+]
+
+# [
+#     dpkg_src(
+#         name = arch + "_" + name + "_backports",
+#         arch = arch,
+#         distro = distro + "-backports",
+#         sha256 = SHA256s[arch][name]["backports"],
+#         snapshot = DEBIAN_SNAPSHOT,
+#         url = "https://snapshot.debian.org/archive",
+#     )
+#     for arch in ARCHITECTURES
+#     for (name, distro) in VERSIONS
+#     if "backports" in SHA256s[arch][name]
+# ]
+
+[
+    dpkg_list(
+        name = "package_bundle_" + arch + "_debian11",
+        packages = [
+            "base-files",
+            "ca-certificates",
+            "libc6",
+            "libc-bin",
+            "libssl1.1",
+            "netbase",
+            "openssl",
+            "tzdata",
+
+            #custom
+            "iptables",
+            "libip4tc2",
+            "libip6tc2",
+            "libxtables12",
+            "libnfnetlink0",
+            "libnetfilter-conntrack3",
+            "libmnl0",
+            "conntrack",
+
+            # c++
+            "libgcc-s1",
+            "libgomp1",
+            "libstdc++6",
+        ] + ([
+            # python only builds on amd64/arm64
+            "dash",
+            "libbz2-1.0",
+            "libcom-err2",
+            "libcrypt1",  # TODO: glibc library for -lcrypt; maybe should be in cc?
+            "libdb5.3",
+            "libexpat1",
+            "libffi7",
+            "libgssapi-krb5-2",
+            "libk5crypto3",
+            "libkeyutils1",
+            "libkrb5-3",
+            "libkrb5support0",
+            "liblzma5",
+            "libmpdec3",
+            "libncursesw6",
+            "libnsl2",
+            "libpython3.9-minimal",
+            "libpython3.9-stdlib",
+            "libreadline8",
+            "libsqlite3-0",
+            "libtinfo6",
+            "libtirpc3",
+            "libuuid1",
+            "python3-distutils",
+            "python3.9-minimal",
+            "zlib1g",
+            # java only builds on amd64/arm64
+            "fontconfig-config",
+            "fonts-dejavu-core",
+            "libbrotli1",
+            "libexpat1",
+            "libfontconfig1",
+            "libfreetype6",
+            "libglib2.0-0",
+            "libgraphite2-3",
+            "libharfbuzz0b",
+            "libjpeg62-turbo",
+            "liblcms2-2",
+            "libpcre3",
+            "libpng16-16",
+            "libuuid1",
+            "openjdk-11-jdk-headless",
+            "openjdk-11-jre-headless",
+            "openjdk-17-jdk-headless",  # 11 and 17 should share the same "base"
+            "openjdk-17-jre-headless",
+            "zlib1g",
+        ] if arch in BASE_ARCHITECTURES else []),
+        sources = [
+            "@" + arch + "_debian11_security//file:Packages.json",
+            "@" + arch + "_debian11_updates//file:Packages.json",
+            "@" + arch + "_debian11//file:Packages.json",
+        ],
+    )
+    for arch in ARCHITECTURES
+]

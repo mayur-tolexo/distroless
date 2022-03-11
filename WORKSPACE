@@ -158,19 +158,6 @@ rust_repositories()
     for (name, distro, tag) in VERSIONS
 ]
 
-# [
-#     dpkg_src(
-#         name = arch + "_" + name + "_security",
-#         package_prefix = "https://snapshot.debian.org/archive/debian-security/{}/".format(DEBIAN_SECURITY_SNAPSHOT),
-#         packages_url = "https://snapshot.debian.org/archive/debian-security/{}/dists/{}/updates/main/binary-{}/Packages.xz".format(DEBIAN_SECURITY_SNAPSHOT, distro, arch),
-#         sha256 = SHA256s[arch][name]["security"],
-#     )
-#     for arch in ARCHITECTURES
-#     for (name, distro, tag) in VERSIONS
-#     if "debian10" == name
-#     if "security" in SHA256s[arch][name]
-# ]
-
 # debian11 has a slightly different structure for security on snapshots
 [
     dpkg_src(
@@ -185,19 +172,6 @@ rust_repositories()
     if "security" in SHA256s[arch][name]
 ]
 
-# [
-#     dpkg_src(
-#         name = arch + "_" + name + "_backports",
-#         arch = arch,
-#         distro = distro + "-backports",
-#         sha256 = SHA256s[arch][name]["backports"],
-#         snapshot = DEBIAN_SNAPSHOT,
-#         url = "https://snapshot.debian.org/archive",
-#     )
-#     for arch in ARCHITECTURES
-#     for (name, distro) in VERSIONS
-#     if "backports" in SHA256s[arch][name]
-# ]
 
 [
     dpkg_list(

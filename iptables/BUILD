@@ -2,7 +2,6 @@ package(default_visibility = ["//visibility:public"])
 
 load("@package_bundle_amd64_debian11//file:packages.bzl", packages_amd64_debian11 = "packages")
 load("@io_bazel_rules_docker//container:container.bzl", "container_image", "container_bundle")
-load("//:checksums.bzl", "ARCHITECTURES")
 
 ARCHITECTURES = ["amd64"]
 

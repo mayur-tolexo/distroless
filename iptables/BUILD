@@ -5,17 +5,9 @@ load("@io_bazel_rules_docker//container:container.bzl", "container_image", "cont
 
 ARCHITECTURES = ["amd64"]
 
-DISTRO_SUFFIXES = ["_debian11"]
-
 DISTRO_PACKAGES = {
     "amd64": {
         "_debian11": packages_amd64_debian11,
-    },
-}
-
-DISTRO_REPOSITORY = {
-    "amd64": {
-        "_debian11": "@amd64_debian11",
     },
 }
 

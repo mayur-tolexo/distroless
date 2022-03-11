@@ -60,11 +60,11 @@ container_bundle(
     for arch in ARCHITECTURES
   }
 )
+
 load("@io_bazel_rules_docker//contrib:push-all.bzl", "container_push")
 
 container_push(
     name = "publish",
     bundle = ":iptables",
     format = "Docker",
-    sequential = True,
 )
